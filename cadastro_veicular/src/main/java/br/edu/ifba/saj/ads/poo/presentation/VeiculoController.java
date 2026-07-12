@@ -1,7 +1,10 @@
 package br.edu.ifba.saj.ads.poo.presentation;
 
 import java.util.function.UnaryOperator;
+import java.util.List;
 
+import br.edu.ifba.saj.ads.poo.model.Motorista;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -168,10 +171,13 @@ public class VeiculoController {
                 new PropertyValueFactory<>("categoria")
         );
 
-        /*
-         * A coluna de motorista associado será configurada
-         * quando as associações estiverem conectadas.
-         */
+        clmMotoristaAssociado.setCellValueFactory(dados ->
+                new SimpleStringProperty(
+                        montarTextoMotoristasAssociados(
+                                dados.getValue()
+                        )
+                )
+        );
     }
 
     public void carregarListaVeiculos() {
@@ -313,5 +319,36 @@ public class VeiculoController {
                     erro.getMessage()
             ).showAndWait();
         }
+    }
+
+    private String montarTextoMotoristasAssociados(
+            Veiculo veiculo
+    ) {
+        List<Motorista> motoristas =
+                servico.listarMotoristasAssociados(
+                        veiculo
+                );
+
+        if (motoristas.isEmpty()) {
+            return "Sem associação";
+        }
+
+        StringBuilder texto = new StringBuilder();
+
+        for (int indice = 0;
+             indice < motoristas.size();
+             indice++) {
+
+            Motorista motorista =
+                    motoristas.get(indice);
+
+            if (indice > 0) {
+                texto.append(", ");
+            }
+
+            texto.append(motorista.getNome());
+        }
+
+        return texto.toString();
     }
 }

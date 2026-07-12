@@ -300,6 +300,29 @@ public class ServicoTransporte {
         return veiculosAssociados;
     }
 
+    public List<Motorista> listarMotoristasAssociados(
+            Veiculo veiculo
+    ) {
+        List<Motorista> motoristasAssociados =
+                new ArrayList<>();
+
+        if (veiculo == null) {
+            return motoristasAssociados;
+        }
+
+        for (Associacao associacao :
+                repositorio.listarAssociacoes()) {
+
+            if (associacao.getVeiculo() == veiculo) {
+                motoristasAssociados.add(
+                        associacao.getMotorista()
+                );
+            }
+        }
+
+        return motoristasAssociados;
+    }
+
     private String validarNome(String nome) {
         if (nome == null || nome.isBlank()) {
             throw new IllegalArgumentException(
