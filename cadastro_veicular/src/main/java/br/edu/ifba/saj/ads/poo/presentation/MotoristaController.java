@@ -8,6 +8,9 @@ import javafx.scene.control.ButtonType;
 import br.edu.ifba.saj.ads.poo.business.ServicoTransporte;
 import br.edu.ifba.saj.ads.poo.model.CategoriaCnh;
 import br.edu.ifba.saj.ads.poo.model.Motorista;
+import java.util.List;
+import br.edu.ifba.saj.ads.poo.model.Veiculo;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -120,10 +123,13 @@ public class MotoristaController {
             }
         });
 
-        /*
-         * A coluna de carro associado será configurada
-         * quando conectarmos a tela às associações.
-         */
+        clmCarroAssociado.setCellValueFactory(dados ->
+                new SimpleStringProperty(
+                        montarTextoVeiculosAssociados(
+                                dados.getValue()
+                        )
+                )
+        );
     }
 
     private void carregarCategoriasCnh() {
@@ -352,5 +358,38 @@ public class MotoristaController {
                     erro.getMessage()
             ).showAndWait();
         }
+    }
+
+    private String montarTextoVeiculosAssociados(
+            Motorista motorista
+    ) {
+        List<Veiculo> veiculos =
+                servico.listarVeiculosAssociados(
+                        motorista
+                );
+
+        if (veiculos.isEmpty()) {
+            return "Sem associação";
+        }
+
+        StringBuilder texto = new StringBuilder();
+
+        for (int indice = 0;
+             indice < veiculos.size();
+             indice++) {
+
+            Veiculo veiculo = veiculos.get(indice);
+
+            if (indice > 0) {
+                texto.append(", ");
+            }
+
+            texto.append(veiculo.getModelo());
+            texto.append(" (");
+            texto.append(veiculo.getPlaca());
+            texto.append(")");
+        }
+
+        return texto.toString();
     }
 }

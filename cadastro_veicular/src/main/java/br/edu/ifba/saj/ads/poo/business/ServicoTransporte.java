@@ -2,6 +2,7 @@ package br.edu.ifba.saj.ads.poo.business;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
 
 import br.edu.ifba.saj.ads.poo.data.RepositorioTransporte;
 
@@ -274,6 +275,29 @@ public class ServicoTransporte {
 
     public List<Associacao> listarAssociacoes() {
         return repositorio.listarAssociacoes();
+    }
+
+    public List<Veiculo> listarVeiculosAssociados(
+            Motorista motorista
+    ) {
+        List<Veiculo> veiculosAssociados =
+                new ArrayList<>();
+
+        if (motorista == null) {
+            return veiculosAssociados;
+        }
+
+        for (Associacao associacao :
+                repositorio.listarAssociacoes()) {
+
+            if (associacao.getMotorista() == motorista) {
+                veiculosAssociados.add(
+                        associacao.getVeiculo()
+                );
+            }
+        }
+
+        return veiculosAssociados;
     }
 
     private String validarNome(String nome) {
