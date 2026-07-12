@@ -4,10 +4,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 import br.edu.ifba.saj.ads.poo.data.RepositorioTransporte;
+
 import br.edu.ifba.saj.ads.poo.model.CategoriaCnh;
 import br.edu.ifba.saj.ads.poo.model.Motorista;
 import br.edu.ifba.saj.ads.poo.model.CategoriaVeiculo;
 import br.edu.ifba.saj.ads.poo.model.Veiculo;
+import br.edu.ifba.saj.ads.poo.model.Associacao;
 
 public class ServicoTransporte {
 
@@ -201,6 +203,28 @@ public class ServicoTransporte {
         return repositorio.listarVeiculos();
     }
 
+    public Associacao criarAssociacao(
+            Motorista motorista,
+            Veiculo veiculo
+    ) {
+        validarMotoristaSelecionado(motorista);
+        validarVeiculoSelecionado(veiculo);
+        validarCnhParaAssociacao(motorista);
+
+        Associacao associacao = new Associacao(
+                motorista,
+                veiculo
+        );
+
+        repositorio.salvarAssociacao(associacao);
+
+        return associacao;
+    }
+
+    public List<Associacao> listarAssociacoes() {
+        return repositorio.listarAssociacoes();
+    }
+
     private String validarNome(String nome) {
         if (nome == null || nome.isBlank()) {
             throw new IllegalArgumentException(
@@ -318,6 +342,43 @@ public class ServicoTransporte {
         if (placaUtilizada) {
             throw new IllegalArgumentException(
                     "A placa informada já está em uso."
+            );
+        }
+    }
+
+    private void validarMotoristaSelecionado(
+            Motorista motorista
+    ) {
+        if (motorista == null) {
+            throw new IllegalArgumentException(
+                    "Selecione um motorista."
+            );
+        }
+    }
+
+    private void validarVeiculoSelecionado(
+            Veiculo veiculo
+    ) {
+        if (veiculo == null) {
+            throw new IllegalArgumentException(
+                    "Selecione um veículo."
+            );
+        }
+    }
+
+    private void validarCnhParaAssociacao(
+            Motorista motorista
+    ) {
+        LocalDate validadeCnh = motorista.getValidadeCnh();
+
+        boolean cnhValida =
+                validadeCnh != null
+                        && validadeCnh.isAfter(LocalDate.now());
+
+        if (!cnhValida) {
+            throw new IllegalArgumentException(
+                    "Não é possível criar a associação: "
+                            + "a CNH do motorista está vencida."
             );
         }
     }
