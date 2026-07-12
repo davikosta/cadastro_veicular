@@ -72,6 +72,24 @@ public class RepositorioTransporte {
         return false;
     }
 
+    public boolean existeVeiculoComPlacaExceto(
+            String placa,
+            Veiculo veiculoIgnorado
+    ) {
+        for (Veiculo veiculo : veiculos) {
+            boolean mesmoVeiculo = veiculo == veiculoIgnorado;
+            boolean mesmaPlaca = veiculo
+                    .getPlaca()
+                    .equalsIgnoreCase(placa);
+
+            if (!mesmoVeiculo && mesmaPlaca) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void salvarVeiculo(Veiculo veiculo) {
         veiculos.add(veiculo);
     }

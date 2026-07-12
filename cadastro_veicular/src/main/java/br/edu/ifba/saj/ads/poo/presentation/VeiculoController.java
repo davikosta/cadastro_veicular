@@ -18,12 +18,16 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TableCell;
 
 
 public class VeiculoController {
 
     private final ServicoTransporte servico =
             ServicoTransporte.getInstancia();
+
+    private Veiculo veiculoEmEdicao;
 
     @FXML
     private TextField txModelo;
@@ -61,6 +65,7 @@ public class VeiculoController {
     @FXML
     private void initialize() {
         configurarColunas();
+        configurarColunasAcoes();
         carregarCategorias();
         configurarCampoPlaca();
         carregarListaVeiculos();
@@ -101,21 +106,45 @@ public class VeiculoController {
     @FXML
     private void cadastrarVeiculo(ActionEvent evento) {
         try {
-            Veiculo veiculo = servico.cadastrarVeiculo(
-                    txModelo.getText(),
-                    txPlaca.getText(),
-                    cbCategoriaVeiculo.getValue()
-            );
+            boolean editando = veiculoEmEdicao != null;
+
+            Veiculo veiculo;
+
+            if (editando) {
+                veiculo = servico.atualizarVeiculo(
+                        veiculoEmEdicao,
+                        txModelo.getText(),
+                        txPlaca.getText(),
+                        cbCategoriaVeiculo.getValue()
+                );
+            } else {
+                veiculo = servico.cadastrarVeiculo(
+                        txModelo.getText(),
+                        txPlaca.getText(),
+                        cbCategoriaVeiculo.getValue()
+                );
+            }
+
+            String mensagem;
+
+            if (editando) {
+                mensagem = String.format(
+                        "Veículo %s atualizado com sucesso.",
+                        veiculo.getModelo()
+                );
+            } else {
+                mensagem = String.format(
+                        "Veículo %s cadastrado com sucesso.",
+                        veiculo.getModelo()
+                );
+            }
 
             carregarListaVeiculos();
             limparFormulario();
 
             new Alert(
                     AlertType.INFORMATION,
-                    String.format(
-                            "Veículo %s cadastrado com sucesso.",
-                            veiculo.getModelo()
-                    )
+                    mensagem
             ).showAndWait();
 
         } catch (IllegalArgumentException erro) {
@@ -161,10 +190,128 @@ public class VeiculoController {
                 .getSelectionModel()
                 .clearSelection();
 
+        veiculoEmEdicao = null;
+        btnCadastrar.setText("Cadastrar veículo");
+
         tbVeiculos
                 .getSelectionModel()
                 .clearSelection();
 
         txModelo.requestFocus();
+    }
+
+    private void configurarColunasAcoes() {
+        clmEditar.setCellFactory(coluna -> new TableCell<>() {
+
+            private final Button botaoEditar =
+                    new Button("Editar");
+
+            {
+                botaoEditar.setOnAction(evento -> {
+                    Veiculo veiculo = getTableRow().getItem();
+
+                    if (veiculo != null) {
+                        prepararEdicao(veiculo);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean vazio) {
+                super.updateItem(item, vazio);
+
+                if (vazio) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(botaoEditar);
+                }
+            }
+        });
+
+        clmApagar.setCellFactory(coluna -> new TableCell<>() {
+
+            private final Button botaoApagar =
+                    new Button("Apagar");
+
+            {
+                botaoApagar.setOnAction(evento -> {
+                    Veiculo veiculo = getTableRow().getItem();
+
+                    if (veiculo != null) {
+                        confirmarExclusao(veiculo);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean vazio) {
+                super.updateItem(item, vazio);
+
+                if (vazio) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(botaoApagar);
+                }
+            }
+        });
+    }
+
+    private void prepararEdicao(Veiculo veiculo) {
+        veiculoEmEdicao = veiculo;
+
+        txModelo.setText(veiculo.getModelo());
+        txPlaca.setText(veiculo.getPlaca());
+        cbCategoriaVeiculo.setValue(
+                veiculo.getCategoria()
+        );
+
+        btnCadastrar.setText("Atualizar veículo");
+
+        txModelo.requestFocus();
+    }
+
+    private void confirmarExclusao(Veiculo veiculo) {
+        Alert confirmacao = new Alert(
+                AlertType.CONFIRMATION
+        );
+
+        confirmacao.setTitle("Confirmar exclusão");
+        confirmacao.setHeaderText("Excluir veículo");
+        confirmacao.setContentText(
+                String.format(
+                        "Deseja excluir o veículo %s, placa %s?",
+                        veiculo.getModelo(),
+                        veiculo.getPlaca()
+                )
+        );
+
+        ButtonType resposta = confirmacao
+                .showAndWait()
+                .orElse(ButtonType.CANCEL);
+
+        if (resposta != ButtonType.OK) {
+            return;
+        }
+
+        try {
+            servico.excluirVeiculo(veiculo);
+
+            if (veiculo == veiculoEmEdicao) {
+                limparFormulario();
+            }
+
+            carregarListaVeiculos();
+
+            new Alert(
+                    AlertType.INFORMATION,
+                    "Veículo excluído com sucesso."
+            ).showAndWait();
+
+        } catch (IllegalArgumentException erro) {
+            new Alert(
+                    AlertType.ERROR,
+                    erro.getMessage()
+            ).showAndWait();
+        }
     }
 }

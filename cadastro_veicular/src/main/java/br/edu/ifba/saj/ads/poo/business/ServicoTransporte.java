@@ -140,6 +140,63 @@ public class ServicoTransporte {
         return veiculo;
     }
 
+    public Veiculo atualizarVeiculo(
+            Veiculo veiculoCadastrado,
+            String modelo,
+            String placa,
+            CategoriaVeiculo categoria
+    ) {
+        if (veiculoCadastrado == null) {
+            throw new IllegalArgumentException(
+                    "Nenhum veículo foi selecionado para edição."
+            );
+        }
+
+        String modeloValidado = validarModelo(modelo);
+        String placaValidada = validarPlaca(placa);
+
+        validarCategoriaVeiculo(categoria);
+        validarPlacaUnicaNaEdicao(
+                placaValidada,
+                veiculoCadastrado
+        );
+
+        Veiculo novosDados = new Veiculo(
+                modeloValidado,
+                placaValidada,
+                categoria
+        );
+
+        boolean atualizado = repositorio.atualizarVeiculo(
+                veiculoCadastrado,
+                novosDados
+        );
+
+        if (!atualizado) {
+            throw new IllegalArgumentException(
+                    "O veículo não foi encontrado."
+            );
+        }
+
+        return veiculoCadastrado;
+    }
+
+    public void excluirVeiculo(Veiculo veiculo) {
+        if (veiculo == null) {
+            throw new IllegalArgumentException(
+                    "Nenhum veículo foi selecionado para exclusão."
+            );
+        }
+
+        boolean excluido = repositorio.excluirVeiculo(veiculo);
+
+        if (!excluido) {
+            throw new IllegalArgumentException(
+                    "O veículo não foi encontrado."
+            );
+        }
+    }
+
     public List<Veiculo> listarVeiculos() {
         return repositorio.listarVeiculos();
     }
@@ -242,6 +299,23 @@ public class ServicoTransporte {
 
     private void validarPlacaUnica(String placa) {
         if (repositorio.existeVeiculoComPlaca(placa)) {
+            throw new IllegalArgumentException(
+                    "A placa informada já está em uso."
+            );
+        }
+    }
+
+    private void validarPlacaUnicaNaEdicao(
+            String placa,
+            Veiculo veiculoEmEdicao
+    ) {
+        boolean placaUtilizada =
+                repositorio.existeVeiculoComPlacaExceto(
+                        placa,
+                        veiculoEmEdicao
+                );
+
+        if (placaUtilizada) {
             throw new IllegalArgumentException(
                     "A placa informada já está em uso."
             );
