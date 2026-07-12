@@ -108,7 +108,16 @@ public class ServicoTransporte {
             );
         }
 
-        boolean excluido = repositorio.excluirMotorista(motorista);
+        if (repositorio.existeAssociacaoComMotorista(motorista)) {
+            throw new IllegalArgumentException(
+                    "Não é possível excluir o motorista, "
+                            + "pois ele possui uma associação. "
+                            + "Exclua primeiro a associação."
+            );
+        }
+
+        boolean excluido =
+                repositorio.excluirMotorista(motorista);
 
         if (!excluido) {
             throw new IllegalArgumentException(
@@ -191,7 +200,16 @@ public class ServicoTransporte {
             );
         }
 
-        boolean excluido = repositorio.excluirVeiculo(veiculo);
+        if (repositorio.existeAssociacaoComVeiculo(veiculo)) {
+            throw new IllegalArgumentException(
+                    "Não é possível excluir o veículo, "
+                            + "pois ele possui uma associação. "
+                            + "Exclua primeiro a associação."
+            );
+        }
+
+        boolean excluido =
+                repositorio.excluirVeiculo(veiculo);
 
         if (!excluido) {
             throw new IllegalArgumentException(

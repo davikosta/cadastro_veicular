@@ -119,6 +119,30 @@ public class RepositorioTransporte {
 
     // CRUD de associações
 
+    public boolean existeAssociacaoComMotorista(
+            Motorista motorista
+    ) {
+        for (Associacao associacao : associacoes) {
+            if (associacao.getMotorista() == motorista) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean existeAssociacaoComVeiculo(
+            Veiculo veiculo
+    ) {
+        for (Associacao associacao : associacoes) {
+            if (associacao.getVeiculo() == veiculo) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void salvarAssociacao(Associacao associacao) {
         associacoes.add(associacao);
     }
