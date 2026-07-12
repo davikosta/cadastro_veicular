@@ -56,6 +56,62 @@ public class ServicoTransporte {
         return motorista;
     }
 
+    public Motorista atualizarMotorista(
+            Motorista motoristaCadastrado,
+            String nome,
+            String cnh,
+            CategoriaCnh categoriaCnh,
+            LocalDate validadeCnh
+    ) {
+        if (motoristaCadastrado == null) {
+            throw new IllegalArgumentException(
+                    "Nenhum motorista foi selecionado para edição."
+            );
+        }
+
+        String nomeValidado = validarNome(nome);
+        String cnhValidada = validarCnh(cnh);
+
+        validarCategoriaCnh(categoriaCnh);
+        validarValidadeCnhInformada(validadeCnh);
+
+        Motorista novosDados = new Motorista(
+                nomeValidado,
+                cnhValidada,
+                categoriaCnh,
+                validadeCnh
+        );
+
+        boolean atualizado = repositorio.atualizarMotorista(
+                motoristaCadastrado,
+                novosDados
+        );
+
+        if (!atualizado) {
+            throw new IllegalArgumentException(
+                    "O motorista não foi encontrado."
+            );
+        }
+
+        return motoristaCadastrado;
+    }
+
+    public void excluirMotorista(Motorista motorista) {
+        if (motorista == null) {
+            throw new IllegalArgumentException(
+                    "Nenhum motorista foi selecionado para exclusão."
+            );
+        }
+
+        boolean excluido = repositorio.excluirMotorista(motorista);
+
+        if (!excluido) {
+            throw new IllegalArgumentException(
+                    "O motorista não foi encontrado."
+            );
+        }
+    }
+
     public List<Motorista> listarMotoristas() {
         return repositorio.listarMotoristas();
     }
