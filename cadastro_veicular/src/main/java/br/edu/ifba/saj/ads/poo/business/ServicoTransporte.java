@@ -6,6 +6,8 @@ import java.util.List;
 import br.edu.ifba.saj.ads.poo.data.RepositorioTransporte;
 import br.edu.ifba.saj.ads.poo.model.CategoriaCnh;
 import br.edu.ifba.saj.ads.poo.model.Motorista;
+import br.edu.ifba.saj.ads.poo.model.CategoriaVeiculo;
+import br.edu.ifba.saj.ads.poo.model.Veiculo;
 
 public class ServicoTransporte {
 
@@ -116,6 +118,32 @@ public class ServicoTransporte {
         return repositorio.listarMotoristas();
     }
 
+    public Veiculo cadastrarVeiculo(
+            String modelo,
+            String placa,
+            CategoriaVeiculo categoria
+    ) {
+        String modeloValidado = validarModelo(modelo);
+        String placaValidada = validarPlaca(placa);
+
+        validarCategoriaVeiculo(categoria);
+        validarPlacaUnica(placaValidada);
+
+        Veiculo veiculo = new Veiculo(
+                modeloValidado,
+                placaValidada,
+                categoria
+        );
+
+        repositorio.salvarVeiculo(veiculo);
+
+        return veiculo;
+    }
+
+    public List<Veiculo> listarVeiculos() {
+        return repositorio.listarVeiculos();
+    }
+
     private String validarNome(String nome) {
         if (nome == null || nome.isBlank()) {
             throw new IllegalArgumentException(
@@ -160,6 +188,62 @@ public class ServicoTransporte {
         if (validadeCnh == null) {
             throw new IllegalArgumentException(
                     "A validade da CNH é obrigatória."
+            );
+        }
+    }
+
+    private String validarModelo(String modelo) {
+        if (modelo == null || modelo.isBlank()) {
+            throw new IllegalArgumentException(
+                    "O modelo do veículo é obrigatório."
+            );
+        }
+
+        return modelo.trim();
+    }
+
+    private String validarPlaca(String placa) {
+        if (placa == null || placa.isBlank()) {
+            throw new IllegalArgumentException(
+                    "A placa do veículo é obrigatória."
+            );
+        }
+
+        String placaNormalizada = placa
+                .trim()
+                .toUpperCase();
+
+        boolean placaAntiga =
+                placaNormalizada.matches("[A-Z]{3}[0-9]{4}");
+
+        boolean placaMercosul =
+                placaNormalizada.matches(
+                        "[A-Z]{3}[0-9][A-Z][0-9]{2}"
+                );
+
+        if (!placaAntiga && !placaMercosul) {
+            throw new IllegalArgumentException(
+                    "A placa deve seguir o formato ABC1234 ou ABC1D23."
+            );
+        }
+
+        return placaNormalizada;
+    }
+
+    private void validarCategoriaVeiculo(
+            CategoriaVeiculo categoria
+    ) {
+        if (categoria == null) {
+            throw new IllegalArgumentException(
+                    "A categoria do veículo é obrigatória."
+            );
+        }
+    }
+
+    private void validarPlacaUnica(String placa) {
+        if (repositorio.existeVeiculoComPlaca(placa)) {
+            throw new IllegalArgumentException(
+                    "A placa informada já está em uso."
             );
         }
     }

@@ -62,6 +62,16 @@ public class RepositorioTransporte {
 
     // CRUD de veículos
 
+    public boolean existeVeiculoComPlaca(String placa) {
+        for (Veiculo veiculo : veiculos) {
+            if (veiculo.getPlaca().equalsIgnoreCase(placa)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void salvarVeiculo(Veiculo veiculo) {
         veiculos.add(veiculo);
     }
