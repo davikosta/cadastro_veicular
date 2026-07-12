@@ -221,6 +221,57 @@ public class ServicoTransporte {
         return associacao;
     }
 
+    public Associacao atualizarAssociacao(
+            Associacao associacaoCadastrada,
+            Motorista motorista,
+            Veiculo veiculo
+    ) {
+        if (associacaoCadastrada == null) {
+            throw new IllegalArgumentException(
+                    "Nenhuma associação foi selecionada para edição."
+            );
+        }
+
+        validarMotoristaSelecionado(motorista);
+        validarVeiculoSelecionado(veiculo);
+        validarCnhParaAssociacao(motorista);
+
+        Associacao novosDados = new Associacao(
+                motorista,
+                veiculo
+        );
+
+        boolean atualizada = repositorio.atualizarAssociacao(
+                associacaoCadastrada,
+                novosDados
+        );
+
+        if (!atualizada) {
+            throw new IllegalArgumentException(
+                    "A associação não foi encontrada."
+            );
+        }
+
+        return associacaoCadastrada;
+    }
+
+    public void excluirAssociacao(Associacao associacao) {
+        if (associacao == null) {
+            throw new IllegalArgumentException(
+                    "Nenhuma associação foi selecionada para exclusão."
+            );
+        }
+
+        boolean excluida =
+                repositorio.excluirAssociacao(associacao);
+
+        if (!excluida) {
+            throw new IllegalArgumentException(
+                    "A associação não foi encontrada."
+            );
+        }
+    }
+
     public List<Associacao> listarAssociacoes() {
         return repositorio.listarAssociacoes();
     }
